@@ -28,28 +28,20 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-      - name: Create Cordova Project & Build APK
+      - name: Build APK
         run: |
-          cordova create accounting-com expensetracker.app AccountingApp
-          cd accounting-com
+          cordova create accounting AccountingApp
+          cd accounting
           cordova platform add android
-          # 覆盖默认文件
           cp ../index.html www/
           cp ../manifest.json www/
           cp ../sw.js www/
           cp ../icon_192.png www/
           cp ../icon_512.png www/
-          # 修改 build 配置，确保生成 APK 而不是 AAB
-          cd platforms/android
-          echo 'cdvReleaseSigningPropertiesFile=release-signing.properties' >> ../platforms/android/app/build.gradle 2>/dev/null || true
-          cd ../../../
-          # 使用 -- --packageType=apk 强制生成 APK
-          cordova build android --release -- --packageType=apk
+          cordova build android
 
-      - name: Find and Upload APK
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: AccountingApp-APK
-          path: |
-            accounting-com/platforms/android/app/build/outputs/apk/**/*.apk
-            accounting-com/platforms/android/app/build/outputs/bundle/**/*.aab
+          path: accounting/platforms/android/app/build/outputs/apk/**/*.apk
