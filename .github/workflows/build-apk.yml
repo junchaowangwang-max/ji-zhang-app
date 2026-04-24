@@ -1,0 +1,52 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Cordova
+        run: npm install -g cordova
+
+      - name: Create Cordova Project
+        run: |
+          cordova create accounting-com expensetracker.app AccountingApp
+          cd accounting-com
+          cordova platform add android
+
+      - name: Copy App Files
+        run: |
+          cp www/index.html accounting-com/www/
+          cp manifest.json accounting-com/www/
+          cp sw.js accounting-com/www/
+
+      - name: Build APK
+        run: |
+          cd accounting-com
+          cordova build android --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AccountingApp-APK
+          path: accounting-com/platforms/android/app/build/outputs/apk/release/*.apk
