@@ -33,16 +33,23 @@ jobs:
           cordova create accounting-com expensetracker.app AccountingApp
           cd accounting-com
           cordova platform add android
-          # 覆盖默认的 index.html
+          # 覆盖默认文件
           cp ../index.html www/
           cp ../manifest.json www/
           cp ../sw.js www/
           cp ../icon_192.png www/
           cp ../icon_512.png www/
-          cordova build android --release
+          # 修改 build 配置，确保生成 APK 而不是 AAB
+          cd platforms/android
+          echo 'cdvReleaseSigningPropertiesFile=release-signing.properties' >> ../platforms/android/app/build.gradle 2>/dev/null || true
+          cd ../../../
+          # 使用 -- --packageType=apk 强制生成 APK
+          cordova build android --release -- --packageType=apk
 
-      - name: Upload APK
+      - name: Find and Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: AccountingApp-APK
-          path: accounting-com/platforms/android/app/build/outputs/apk/release/*.apk
+          path: |
+            accounting-com/platforms/android/app/build/outputs/apk/**/*.apk
+            accounting-com/platforms/android/app/build/outputs/bundle/**/*.aab
