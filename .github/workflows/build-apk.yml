@@ -28,21 +28,17 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-      - name: Create Cordova Project
+      - name: Create Cordova Project & Build APK
         run: |
           cordova create accounting-com expensetracker.app AccountingApp
           cd accounting-com
           cordova platform add android
-
-      - name: Copy App Files
-        run: |
-          cp www/index.html accounting-com/www/
-          cp manifest.json accounting-com/www/
-          cp sw.js accounting-com/www/
-
-      - name: Build APK
-        run: |
-          cd accounting-com
+          # 覆盖默认的 index.html
+          cp ../index.html www/
+          cp ../manifest.json www/
+          cp ../sw.js www/
+          cp ../icon_192.png www/
+          cp ../icon_512.png www/
           cordova build android --release
 
       - name: Upload APK
