@@ -30,7 +30,7 @@ jobs:
 
       - name: Build APK
         run: |
-          cordova create accounting AccountingApp
+          cordova create accounting AccountingApp com.accounting.app
           cd accounting
           cordova platform add android
           cp ../index.html www/
