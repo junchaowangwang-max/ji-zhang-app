@@ -28,20 +28,23 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
 
-      - name: Build APK
+      - name: Create Cordova Project & Build APK
         run: |
-          cordova create accounting AccountingApp com.accounting.app
-          cd accounting
+          cordova create accounting-com com.expensetracker.app AccountingApp
+          cd accounting-com
           cordova platform add android
+          # 覆盖默认文件
           cp ../index.html www/
           cp ../manifest.json www/
           cp ../sw.js www/
           cp ../icon_192.png www/
           cp ../icon_512.png www/
-          cordova build android
+          # 强制生成 APK
+          cordova build android -- --packageType=apk
 
-      - name: Upload APK
+      - name: Find and Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: AccountingApp-APK
-          path: accounting/platforms/android/app/build/outputs/apk/**/*.apk
+          path: |
+            accounting-com/platforms/android/app/build/outputs/apk/**/*.apk
